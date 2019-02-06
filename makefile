@@ -8,3 +8,4 @@ main.out: main.cpp
 
 clean:
 	rm -f proc.out
+

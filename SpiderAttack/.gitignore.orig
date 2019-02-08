@@ -1,6 +1,4 @@
 /Debug/
-<<<<<<< HEAD
 !/Debug/makefile
-=======
 /Release/
->>>>>>> git ignore makefile
+

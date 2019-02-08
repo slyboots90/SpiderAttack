@@ -141,8 +141,6 @@ void timerTest(long long freq_nanosecs) {
 	printf("Unblocking signal %d\n", SIG);
 	if (sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1)
  		errExit("sigprocmask");
-
-	while(1);
 }
 
 

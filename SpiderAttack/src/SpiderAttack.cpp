@@ -39,7 +39,12 @@ RT_TASK task2;
 RT_TASK task3;
 */
 
-int setValueGPIO8(string val);
+// Yellow
+static int setValueGPIO7(string val);
+// Red
+static int setValueGPIO8(string val);
+// Green
+static int setValueGPIO9(string val);
 
 /* ===== INTERRUPTS ======= */
 
@@ -66,60 +71,90 @@ static void print_siginfo(siginfo_t *si) {
 	}
 }
 
-static void handler(int sig, siginfo_t *si, void *uc) {
+static void handlerGPIO7(int sig, siginfo_t *si, void *uc) {
            /* Note: calling printf() from a signal handler is not safe
               (and should not be done in production programs), since
               printf() is not async-signal-safe; see signal-safety(7).
               Nevertheless, we use printf() here as a simple way of
               showing that the handler was called. */
-
-	printf("Caught signal %d\n", sig);
-	//print_siginfo(si);
-
 	static int cnt = 0;
-	if(cnt % 2) {
-			setValueGPIO8("1");
-}
-	else {
-		setValueGPIO8("0");
-}
+	//printf("Caught signal %d iteration %d\n", sig, cnt);
+	//print_siginfo(si);
+	(cnt++ % 2) ? setValueGPIO7("1") : setValueGPIO7("0");
+	// This signal(sig, SIG_IGN) is blocking multiple interval timer
+	//signal(sig, SIG_IGN);
 
-	cnt++;
-	signal(sig, SIG_IGN);
-
-	if(cnt == 65000) {
-		exit(EXIT_FAILURE);
-	}
+//	if(cnt == 10) {
+//		exit(EXIT_FAILURE);
+//	}
 }
 
-void timerTest(long long freq_nanosecs) {
+static void handlerGPIO8(int sig, siginfo_t *si, void *uc) {
+           /* Note: calling printf() from a signal handler is not safe
+              (and should not be done in production programs), since
+              printf() is not async-signal-safe; see signal-safety(7).
+              Nevertheless, we use printf() here as a simple way of
+              showing that the handler was called. */
+	static int cnt = 0;
+	//printf("Caught signal %d iteration %d\n", sig, cnt);
+	//print_siginfo(si);
+	(cnt++ % 2) ? setValueGPIO8("1") : setValueGPIO8("0");
+	// This signal(sig, SIG_IGN) is blocking multiple interval timer
+	//signal(sig, SIG_IGN);
+
+//	if(cnt == 10) {
+//		exit(EXIT_FAILURE);
+//	}
+}
+
+static void handlerGPIO9(int sig, siginfo_t *si, void *uc) {
+           /* Note: calling printf() from a signal handler is not safe
+              (and should not be done in production programs), since
+              printf() is not async-signal-safe; see signal-safety(7).
+              Nevertheless, we use printf() here as a simple way of
+              showing that the handler was called. */
+	static int cnt = 0;
+	//printf("Caught signal %d iteration %d\n", sig, cnt);
+	//print_siginfo(si);
+	(cnt++ % 2) ? setValueGPIO9("1") : setValueGPIO9("0");
+	// This signal(sig, SIG_IGN) is blocking multiple interval timer
+	//signal(sig, SIG_IGN);
+
+//	if(cnt == 10) {
+//		exit(EXIT_FAILURE);
+//	}
+}
+
+void timerTest(long long freq_nanosecs, struct sigaction sa) {
 	timer_t timerid;
 	struct sigevent sev;
 	struct itimerspec its;
 	sigset_t mask;
-	struct sigaction sa;
+	static int tempWA = 0;
+	//struct sigaction sa;
 
 	/* Establish handler for timer signal */
 
-	printf("Establishing handler for signal %d\n", SIG);
-	sa.sa_flags = SA_SIGINFO;
-	sa.sa_sigaction = handler;
+	printf("Establishing handler for signal %d\n", SIG+tempWA);
+	//sa.sa_flags = SA_SIGINFO;
+	//sa.sa_sigaction = handler;
 	sigemptyset(&sa.sa_mask);
-	if (sigaction(SIG, &sa, NULL) == -1)
+	if (sigaction(SIG+tempWA, &sa, NULL) == -1)
 		errExit("sigaction");
 
 	/* Block timer signal temporarily */
 
-	printf("Blocking signal %d\n", SIG);
+	printf("Blocking signal %d\n", SIG+tempWA);
 	sigemptyset(&mask);
-	sigaddset(&mask, SIG);
-	if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
+	sigaddset(&mask, SIG+tempWA);
+	if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1) {
 		errExit("sigprocmask");
+	}
 
 	/* Create the timer */
 
 	sev.sigev_notify = SIGEV_SIGNAL;
- 	sev.sigev_signo = SIG;
+ 	sev.sigev_signo = SIG+tempWA;
 	sev.sigev_value.sival_ptr = &timerid;
  	if (timer_create(CLOCKID, &sev, &timerid) == -1)
 		errExit("timer_create");
@@ -130,7 +165,7 @@ void timerTest(long long freq_nanosecs) {
 
  	its.it_value.tv_sec = freq_nanosecs / 1000000000;
  	its.it_value.tv_nsec = freq_nanosecs % 1000000000;
-  its.it_interval.tv_sec = its.it_value.tv_sec;
+ 	its.it_interval.tv_sec = its.it_value.tv_sec;
 	its.it_interval.tv_nsec = its.it_value.tv_nsec;
 
 	if (timer_settime(timerid, 0, &its, NULL) == -1)
@@ -138,9 +173,13 @@ void timerTest(long long freq_nanosecs) {
 
 	/* Unlock the timer signal, so that timer notification can be delivered */
 
-	printf("Unblocking signal %d\n", SIG);
-	if (sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1)
- 		errExit("sigprocmask");
+	printf("Unblocking signal %d\n", SIG+tempWA);
+	if (sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1) {
+		cout << "Error sigprocmask" << endl;
+		errExit("sigprocmask");
+	}
+	tempWA++;
+	cout << "After Unblocking signal" << endl;
 }
 
 
@@ -220,7 +259,7 @@ int setDirection(string gpioNr) {
 	return 0;
 }
 
-int setValueGPIO7(string val) {
+static int setValueGPIO7(string val) {
 	string tmp1 = "/sys/class/gpio/gpio7/value";
 	ofstream setvalgpio7(tmp1.c_str());
 	if(!setvalgpio7.is_open()) {
@@ -232,7 +271,7 @@ int setValueGPIO7(string val) {
 	return 0;
 }
 
-int setValueGPIO8(string val) {
+static int setValueGPIO8(string val) {
 	string tmp1 = "/sys/class/gpio/gpio8/value";
 	ofstream setvalgpio8(tmp1.c_str());
 	if(!setvalgpio8.is_open()) {
@@ -244,7 +283,7 @@ int setValueGPIO8(string val) {
 	return 0;
 }
 
-int setValueGPIO9(string val) {
+static int setValueGPIO9(string val) {
 	string tmp1 = "/sys/class/gpio/gpio9/value";
 	ofstream setvalgpio9(tmp1.c_str());
 	if(!setvalgpio9.is_open()) {
@@ -254,6 +293,7 @@ int setValueGPIO9(string val) {
 	setvalgpio9 << val;
 	setvalgpio9.close();
 	return 0;
+
 }
 
 void delayMicroSec(unsigned int ms) {
@@ -385,8 +425,20 @@ int main(int argc, const char *argv[]) {
 	}
 
 	//init_tasks();
-
-	timerTest(1000000000);
+	cout << "Before Timer setup Finished" << endl;
+	struct sigaction actionGPIO7;
+	struct sigaction actionGPIO8;
+	struct sigaction actionGPIO9;
+	actionGPIO7.sa_flags = SA_SIGINFO;
+	actionGPIO7.sa_sigaction = handlerGPIO7;
+	actionGPIO8.sa_flags = SA_SIGINFO;
+	actionGPIO8.sa_sigaction = handlerGPIO8;
+	actionGPIO9.sa_flags = SA_SIGINFO;
+	actionGPIO9.sa_sigaction = handlerGPIO9;
+	timerTest(1000000000, actionGPIO7);
+	timerTest(100000000, actionGPIO8);
+	timerTest(500000000, actionGPIO9);
+	cout << "Timer setup Finished" << endl;
 	//timerTest(1000);
 
 	while(true) {

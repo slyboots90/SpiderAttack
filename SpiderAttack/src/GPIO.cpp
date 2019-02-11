@@ -83,8 +83,6 @@ int GPIO::exportGPIO() {
 		cout << "FAILED to export GPIO%d" << this->index << endl;
 		return -1;
 	}
-	//TODO
-	//Check if c_str() needed - never know..
 	exportgpio << std::to_string(index).c_str();
 	exportgpio.close();
 	return 0;

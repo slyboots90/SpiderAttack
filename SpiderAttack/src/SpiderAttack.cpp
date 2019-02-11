@@ -408,41 +408,54 @@ int init_tasks(void) {
 	return 0;
 }
 
+#include "../inc/GPIO.h"
 
 int main(int argc, const char *argv[]) {
 	cout << "Off we go :)" << endl;
-	if(exportGPIO()) return 0;
-	if(setDirection("currently ignored arg")) return 0;
-	for(int i=0; i < 5; i++) {
-		setValueGPIO7("1");
-		setValueGPIO8("1");
-		setValueGPIO9("1");
-		usleep(500000); //0.5 s
-		setValueGPIO7("0");
-		setValueGPIO8("0");
-		setValueGPIO9("0");
-		usleep(500000); //0.5 s
-	}
 
-	//init_tasks();
-	cout << "Before Timer setup Finished" << endl;
-	struct sigaction actionGPIO7;
-	struct sigaction actionGPIO8;
-	struct sigaction actionGPIO9;
-	actionGPIO7.sa_flags = SA_SIGINFO;
-	actionGPIO7.sa_sigaction = handlerGPIO7;
-	actionGPIO8.sa_flags = SA_SIGINFO;
-	actionGPIO8.sa_sigaction = handlerGPIO8;
-	actionGPIO9.sa_flags = SA_SIGINFO;
-	actionGPIO9.sa_sigaction = handlerGPIO9;
-	timerTest(1000000000, actionGPIO7);
-	timerTest(100000000, actionGPIO8);
-	timerTest(500000000, actionGPIO9);
-	cout << "Timer setup Finished" << endl;
+	GPIO gpio7 = GPIO(7);
+	GPIO gpio8 = GPIO(8);
+	GPIO gpio9 = GPIO(9);
+
+//	if(exportGPIO()) return 0;
+//	if(setDirection("currently ignored arg")) return 0;
+//	for(int i=0; i < 5; i++) {
+//		setValueGPIO7("1");
+//		setValueGPIO8("1");
+//		setValueGPIO9("1");
+//		usleep(500000); //0.5 s
+//		setValueGPIO7("0");
+//		setValueGPIO8("0");
+//		setValueGPIO9("0");
+//		usleep(500000); //0.5 s
+//	}
+//
+//	//init_tasks();
+//	cout << "Before Timer setup Finished" << endl;
+//	struct sigaction actionGPIO7;
+//	struct sigaction actionGPIO8;
+//	struct sigaction actionGPIO9;
+//	actionGPIO7.sa_flags = SA_SIGINFO;
+//	actionGPIO7.sa_sigaction = handlerGPIO7;
+//	actionGPIO8.sa_flags = SA_SIGINFO;
+//	actionGPIO8.sa_sigaction = handlerGPIO8;
+//	actionGPIO9.sa_flags = SA_SIGINFO;
+//	actionGPIO9.sa_sigaction = handlerGPIO9;
+//	timerTest(1000000000, actionGPIO7);
+//	timerTest(100000000, actionGPIO8);
+//	timerTest(500000000, actionGPIO9);
+//	cout << "Timer setup Finished" << endl;
 	//timerTest(1000);
 
 	while(true) {
-
+		gpio7.setGPIO(1);
+		gpio8.setGPIO(1);
+		gpio9.setGPIO(1);
+		usleep(500000); //0.5 s
+		gpio7.setGPIO(0);
+		gpio8.setGPIO(0);
+		gpio9.setGPIO(0);
+		usleep(500000); //0.5 s
  	}
 	return 0;
 }

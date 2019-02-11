@@ -8,6 +8,10 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
+#include <vector>
+
+#define RPI3B 1;
+
 enum gpioDirection {
 	out,
 	in
@@ -36,13 +40,14 @@ public:
 private:
 
 	/* Methods */
-	bool validateIndex(void);
+	bool validateIndex(unsigned int);
 	int exportGPIO(void);
 	int unexportGPIO(void);
 	int setDirection();
 	/* Variables */
 	unsigned int index;
 	gpioDirection direction;
+	static std::vector<int> usedGpio;
 
 };
 

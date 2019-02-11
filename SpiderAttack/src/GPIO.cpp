@@ -8,16 +8,19 @@
 #include "../inc/GPIO.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm> //std::find
 
 using namespace std;
+
+std::vector<int> GPIO::usedGpio;
 
 GPIO::GPIO() : index(0), direction(gpioDirection::out) {
 
 }
 
 GPIO::GPIO(unsigned int idx, gpioDirection dir) {
-	if(validateIndex()) {
-		cout << "GPIO index %d is not available" << idx <<endl;
+	if(validateIndex(idx)) {
+		cout << "GPIO index " << idx <<  "is not available" <<endl;
 	} else {
 		this->setIndex(idx);
 		this->setDirection(dir);
@@ -28,10 +31,15 @@ GPIO::~GPIO() {
 
 }
 
-bool GPIO::validateIndex() {
-	//TODO
-	// 1. Acording to GPIO list on Raspberry
-	// 2. Check if GPIO is used already
+bool GPIO::validateIndex(unsigned int idx) {
+#ifdef RPI3B
+	if(idx > 27) return 1;
+#endif
+	if(std::find(usedGpio.begin(), usedGpio.end(), idx) != usedGpio.end()) {
+		return 1;
+	} else {
+		usedGpio.push_back(idx);
+	}
 	return 0;
 }
 
@@ -68,7 +76,7 @@ int GPIO::setGPIO(bool val) {
 	string setval_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/value";
 	ofstream setvalgpio(setval_path.c_str());
 	if(!setvalgpio.is_open()) {
-		cout << "FAILED to set value for GPIO%d" << index << endl;
+		cout << "FAILED to set value for GPIO " << index << endl;
 		return -1;
 	}
 	setvalgpio << to_string((int) val);
@@ -80,7 +88,7 @@ int GPIO::exportGPIO() {
 	string export_path = "/sys/class/gpio/export";
 	ofstream exportgpio(export_path.c_str());
 	if(!exportgpio.is_open()) {
-		cout << "FAILED to export GPIO%d" << this->index << endl;
+		cout << "FAILED to export GPIO " << this->index << endl;
 		return -1;
 	}
 	exportgpio << std::to_string(index).c_str();
@@ -94,7 +102,7 @@ int GPIO::unexportGPIO() {
 	string unexport_path = "/sys/class/gpio/unexport";
 	ofstream unexportgpio(unexport_path.c_str());
 	if(!unexportgpio.is_open()) {
-		cout << "FAILED to unexport GPIO%d" << this->index << endl;
+		cout << "FAILED to unexport GPIO " << this->index << endl;
 		return -1;
 	}
 	return 0;
@@ -104,7 +112,7 @@ int GPIO::setDirection() {
 	string setdir_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/direction";
 	ofstream setdirgpio(setdir_path.c_str());
 	if(!setdirgpio.is_open()) {
-		cout << "FAILED to set direction for GPIO%d" << index << endl;
+		cout << "FAILED to set direction for GPIO " << index << endl;
 		return -1;
 	}
 	if(direction == gpioDirection::out) {

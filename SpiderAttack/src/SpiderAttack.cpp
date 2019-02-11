@@ -416,6 +416,7 @@ int main(int argc, const char *argv[]) {
 	GPIO gpio7 = GPIO(7);
 	GPIO gpio8 = GPIO(8);
 	GPIO gpio9 = GPIO(9);
+	GPIO gpio77 = GPIO(7);
 
 //	if(exportGPIO()) return 0;
 //	if(setDirection("currently ignored arg")) return 0;

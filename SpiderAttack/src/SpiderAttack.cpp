@@ -409,14 +409,15 @@ int init_tasks(void) {
 }
 
 #include "../inc/GPIO.h"
+#include "../inc/GPIOController.h"
 
 int main(int argc, const char *argv[]) {
 	cout << "Off we go :)" << endl;
 
-	GPIO gpio7 = GPIO(7);
-	GPIO gpio8 = GPIO(8);
-	GPIO gpio9 = GPIO(9);
-	GPIO gpio77 = GPIO(7);
+//	GPIO gpio7 = GPIO(7);
+//	GPIO gpio8 = GPIO(8);
+//	GPIO gpio9 = GPIO(9);
+//	GPIO gpio77 = GPIO(7);
 
 //	if(exportGPIO()) return 0;
 //	if(setDirection("currently ignored arg")) return 0;
@@ -447,15 +448,12 @@ int main(int argc, const char *argv[]) {
 //	timerTest(500000000, actionGPIO9);
 //	cout << "Timer setup Finished" << endl;
 	//timerTest(1000);
+	GPIOController * gpio7 = new GPIOController(7, out);
 
 	while(true) {
-		gpio7.setGPIO(1);
-		gpio8.setGPIO(1);
-		gpio9.setGPIO(1);
+		gpio7->setGPIO();
 		usleep(500000); //0.5 s
-		gpio7.setGPIO(0);
-		gpio8.setGPIO(0);
-		gpio9.setGPIO(0);
+		gpio7->unsetGPIO();
 		usleep(500000); //0.5 s
  	}
 	return 0;

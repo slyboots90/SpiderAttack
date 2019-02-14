@@ -1,6 +1,8 @@
 /*
  * GPIO.h
  *
+ * LIMITS: Cant use GPIO 0
+ *
  *  Created on: 8 feb. 2019
  *      Author: mateusz.fraszczynski
  */
@@ -28,26 +30,28 @@ public:
 	virtual ~GPIO();
 
 	/* Methods */
-	void setIndex(unsigned int);
 	unsigned int getIndex(void);
 	void setDirection(gpioDirection);
 	gpioDirection getDirection(void);
-	int gpioInit(void);
-	int setGPIO(bool);
-	//TODO bool getGPIO();
+	//int setGPIO(bool);
 	/* Variables */
 
 private:
 
 	/* Methods */
+	void setIndex(unsigned int);
 	bool validateIndex(unsigned int);
 	int exportGPIO(void);
 	int unexportGPIO(void);
 	int setDirection();
 	/* Variables */
-	unsigned int index;
 	gpioDirection direction;
 	static std::vector<int> usedGpio;
+
+protected:
+
+	int gpioInit(void);
+	unsigned int index;
 
 };
 

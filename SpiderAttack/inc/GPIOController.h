@@ -8,10 +8,19 @@
 #ifndef GPIOCONTROLLER_H_
 #define GPIOCONTROLLER_H_
 
-class GPIOController {
+#include "GPIO.h"
+
+class GPIOController : public GPIO {
 public:
-	GPIOController();
+	GPIOController(unsigned int, gpioDirection = gpioDirection::out);
 	virtual ~GPIOController();
+
+	int setGPIO();
+	int unsetGPIO();
+	//TODO bool readGPIO();
+
+private:
+
 };
 
 #endif /* GPIOCONTROLLER_H_ */

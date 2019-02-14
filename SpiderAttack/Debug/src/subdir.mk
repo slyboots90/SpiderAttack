@@ -9,7 +9,8 @@ CPP_SRCS += \
 ../src/PWM.cpp \
 ../src/PosixTimer.cpp \
 ../src/Pthread.cpp \
-../src/SpiderAttack.cpp 
+../src/SpiderAttack.cpp \
+../src/TimerHandler.cpp 
 
 OBJS += \
 ./src/GPIO.o \
@@ -17,7 +18,8 @@ OBJS += \
 ./src/PWM.o \
 ./src/PosixTimer.o \
 ./src/Pthread.o \
-./src/SpiderAttack.o 
+./src/SpiderAttack.o \
+./src/TimerHandler.o 
 
 CPP_DEPS += \
 ./src/GPIO.d \
@@ -25,7 +27,8 @@ CPP_DEPS += \
 ./src/PWM.d \
 ./src/PosixTimer.d \
 ./src/Pthread.d \
-./src/SpiderAttack.d 
+./src/SpiderAttack.d \
+./src/TimerHandler.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

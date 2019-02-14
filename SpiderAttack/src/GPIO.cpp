@@ -1,6 +1,8 @@
 /*
  * GPIO.cpp
  *
+ * LIMITS: Cant use GPIO 0
+ *
  *  Created on: 8 feb. 2019
  *      Author: mateusz.fraszczynski
  */
@@ -13,10 +15,6 @@
 using namespace std;
 
 std::vector<int> GPIO::usedGpio;
-
-GPIO::GPIO() : index(0), direction(gpioDirection::out) {
-
-}
 
 GPIO::GPIO(unsigned int idx, gpioDirection dir) {
 	if(validateIndex(idx)) {
@@ -57,32 +55,35 @@ void GPIO::setDirection(gpioDirection value) {
 
 gpioDirection GPIO::getDirection() {
 	return direction;
+
 }
 
 int GPIO::gpioInit() {
-	if(!index) return -1;
-	exportGPIO();
-	setDirection();
-	return 0;
+	if(index) {
+		if(exportGPIO() == 0 && setDirection() == 0) {
+			return 0;
+		}
+	}
+	return -1;
 }
 
 //TODO
 //Investigate: this method should be static for timer
 //But static in class means something else
 //static int setValueGPIO7(bool)
-int GPIO::setGPIO(bool val) {
-	//TODO This method should be moved to GPIOController class, then index check not needed
-	if(!index) return -1;
-	string setval_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/value";
-	ofstream setvalgpio(setval_path.c_str());
-	if(!setvalgpio.is_open()) {
-		cout << "FAILED to set value for GPIO " << index << endl;
-		return -1;
-	}
-	setvalgpio << to_string((int) val);
-	setvalgpio.close();
-	return 0;
-}
+//int GPIO::setGPIO(bool val) {
+//	//TODO This method should be moved to GPIOController class, then index check not needed
+//	if(!index) return -1;
+//	string setval_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/value";
+//	ofstream setvalgpio(setval_path.c_str());
+//	if(!setvalgpio.is_open()) {
+//		cout << "FAILED to set value for GPIO " << index << endl;
+//		return -1;
+//	}
+//	setvalgpio << to_string((int) val);
+//	setvalgpio.close();
+//	return 0;
+//}
 
 int GPIO::exportGPIO() {
 	string export_path = "/sys/class/gpio/export";

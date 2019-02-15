@@ -8,6 +8,7 @@
  */
 
 #include "../inc/GPIO.h"
+#include "../inc/macrologger.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm> //std::find
@@ -18,7 +19,7 @@ std::vector<int> GPIO::usedGpio;
 
 GPIO::GPIO(unsigned int idx, gpioDirection dir) {
 	if(validateIndex(idx)) {
-		cout << "GPIO index " << idx <<  "is not available" <<endl;
+		LOG_ERROR("GPIO index ", to_string(idx), " is not available");
 	} else {
 		this->setIndex(idx);
 		this->setDirection(dir);
@@ -89,7 +90,7 @@ int GPIO::exportGPIO() {
 	string export_path = "/sys/class/gpio/export";
 	ofstream exportgpio(export_path.c_str());
 	if(!exportgpio.is_open()) {
-		cout << "FAILED to export GPIO " << this->index << endl;
+		LOG_ERROR("FAILED to export GPIO ", to_string(index));
 		return -1;
 	}
 	exportgpio << std::to_string(index).c_str();
@@ -103,7 +104,7 @@ int GPIO::unexportGPIO() {
 	string unexport_path = "/sys/class/gpio/unexport";
 	ofstream unexportgpio(unexport_path.c_str());
 	if(!unexportgpio.is_open()) {
-		cout << "FAILED to unexport GPIO " << this->index << endl;
+		LOG_ERROR("FAILED to unexport GPIO ", to_string(index));
 		return -1;
 	}
 	return 0;
@@ -113,7 +114,7 @@ int GPIO::setDirection() {
 	string setdir_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/direction";
 	ofstream setdirgpio(setdir_path.c_str());
 	if(!setdirgpio.is_open()) {
-		cout << "FAILED to set direction for GPIO " << index << endl;
+		LOG_ERROR("FAILED to set direction for GPIO ", to_string(index));
 		return -1;
 	}
 	if(direction == gpioDirection::out) {

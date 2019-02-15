@@ -40,7 +40,7 @@ int PosixTimer::assignSigNum() {
 			return 0;
 		}
 	}
-	LOG_ERROR("Warning: No available system SIG for Posix Timer");
+	LOG_ERROR("No available system SIG for Posix Timer");
 	return -1;
 }
 

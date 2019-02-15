@@ -6,6 +6,7 @@
  */
 
 #include "../inc/GPIOController.h"
+#include "../inc/macrologger.h"
 #include <iostream>
 #include <fstream>
 
@@ -13,7 +14,7 @@ using namespace std;
 
 GPIOController::GPIOController(unsigned int idx, gpioDirection dir) : GPIO(idx, dir) {
 	if(!gpioInit()) {
-		cout << "Cannot initialize GPIO " << idx << endl;
+		LOG_ERROR("Cannot initialize GPIO ", to_string(idx));
 	}
 }
 
@@ -26,10 +27,11 @@ GPIOController::~GPIOController() {
 //But static in class means something else
 //static int setValueGPIO7()
 int GPIOController::setGPIO() {
-	string setval_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/value";
+	string setval_path = "/sys/class/gpio/gpio" + to_string(index) + "/value";
 	ofstream setvalgpio(setval_path.c_str());
+	//TODO move open/close out of this method
 	if(!setvalgpio.is_open()) {
-		cout << "FAILED to set value for GPIO " << index << endl;
+		LOG_ERROR("FAILED to set value for GPIO ", to_string(index));
 		return -1;
 	}
 	setvalgpio << "1";
@@ -39,9 +41,10 @@ int GPIOController::setGPIO() {
 
 int GPIOController::unsetGPIO() {
 	string setval_path = "/sys/class/gpio/gpio" + std::to_string(index) + "/value";
+	//TODO move open/close out of this method
 	ofstream setvalgpio(setval_path.c_str());
 	if(!setvalgpio.is_open()) {
-		cout << "FAILED to set value for GPIO " << index << endl;
+		LOG_ERROR("FAILED to set value for GPIO ", to_string(index));
 		return -1;
 	}
 	setvalgpio << "0";

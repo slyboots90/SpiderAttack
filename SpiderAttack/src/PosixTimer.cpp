@@ -37,6 +37,7 @@ int PosixTimer::assignSigNum() {
 		} else {
 			sigNumber = idx;
 			usedSigNum.push_back(sigNumber);
+			LOG_DEBUG("Signal number has been assigned: sigNumber = ", std::to_string(sigNumber));
 			return 0;
 		}
 	}
@@ -46,7 +47,9 @@ int PosixTimer::assignSigNum() {
 
 	/* Establish handler for timer signal */
 int PosixTimer::createHandler() {
-	if(sigNumber == -1) return -1;
+	if(assignSigNum() == -1)  {
+		return -1;
+	}
 	struct sigaction sa;
 	sa.sa_flags = SA_SIGINFO;
 	//TODO virtual sigHandler - new class with handler
@@ -56,6 +59,7 @@ int PosixTimer::createHandler() {
 		LOG_ERROR("Cannot create handler");
 		return -1;
 	}
+	blockSignal();
 	return 0;
 }
 
@@ -93,7 +97,7 @@ int PosixTimer::createTimer() {
 }
 	/* Start the timer */
 int PosixTimer::startTimer() {
-	if(timerid == NULL || freq_nano == 0) {
+	if(freq_nano == 0 || createTimer() == -1) {
 		LOG_ERROR("Cannot start Timer : improper init");
 		return -1;
 	}
@@ -106,19 +110,6 @@ int PosixTimer::startTimer() {
 		LOG_ERROR("Cannot start timer");
 		return -1;
 	}
+	unblockSignal();
 	return 0;
-}
-
-void timerTest() {
-
-	/* Establish handler for timer signal */
-
-	/* Block timer signal temporarily */
-
-	/* Create the timer */
-
- 	/* Start the timer */
-
-	/* Unlock the timer signal, so that timer notification can be delivered */
-
 }

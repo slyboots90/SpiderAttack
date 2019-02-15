@@ -14,6 +14,9 @@ class TimerHandler : private PosixTimer {
 public:
 	TimerHandler();
 	virtual ~TimerHandler();
+
+private:
+	int timerInit(void);
 };
 
 #endif /* TIMERHANDLER_H_ */
